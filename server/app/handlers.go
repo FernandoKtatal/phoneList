@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"postapi/app/models"
 	"postapi/app/utils"
+	"strconv"
 	"strings"
 )
 
@@ -34,7 +35,7 @@ func (a *App) CreatePostHandler() http.HandlerFunc {
 		}
 
 		// Save in DB
-		err = a.DB.Insert(models.COLLECTION_PHONES, p)
+		err = a.DB.Insert(p)
 		if err != nil {
 			if strings.Contains(err.Error(), "column") {
 				utils.SendResponse(w, r, nil, http.StatusBadRequest)
@@ -51,20 +52,28 @@ func (a *App) CreatePostHandler() http.HandlerFunc {
 	}
 }
 
-//func (a *App) GetPostsHandler() http.HandlerFunc {
-//	return func(w http.ResponseWriter, r *http.Request) {
-//		phones, err := a.DB.Select()
-//		if err != nil {
-//			log.Printf("Cannot get phones, err=%v \n", err)
-//			utils.SendResponse(w, r, nil, http.StatusInternalServerError)
-//			return
-//		}
-//
-//		var resp = make([]models.JsonPost, len(phones))
-//		for idx, post := range phones {
-//			resp[idx] = utils.MapPostToJSON(post)
-//		}
-//
-//		utils.SendResponse(w, r, resp, http.StatusOK)
-//	}
-//}
+func (a *App) GetPostsHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var validState *bool
+		country := r.URL.Query().Get("country")
+		state := r.URL.Query().Get("state")
+		stateBool, err := strconv.ParseBool(state)
+		if err == nil {
+			validState = &stateBool
+		}
+
+		phones, err := a.DB.Select(&country, validState)
+		if err != nil {
+			log.Printf("Cannot get phones, err=%v \n", err)
+			utils.SendResponse(w, r, nil, http.StatusInternalServerError)
+			return
+		}
+
+		var resp = make([]models.JsonPost, len(phones))
+		for idx, post := range phones {
+			resp[idx] = utils.MapPostToJSON(&post)
+		}
+
+		utils.SendResponse(w, r, resp, http.StatusOK)
+	}
+}

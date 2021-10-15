@@ -1,28 +1,20 @@
 package main
 
 import (
-	"context"
 	"log"
 	"net/http"
 	"os"
 	"postapi/app"
 	"postapi/app/database"
-	"time"
 )
 
 func main() {
-	ctx,_ := context.WithTimeout(context.Background(), 180*time.Second)
 	app := app.New()
 	app.DB = &database.DB{}
-	err := app.DB.Connect(ctx)
+	err := app.DB.Connect()
 	check(err)
 
-	defer func(DB database.PostDB, ctx context.Context) {
-		err := DB.Disconnect(ctx)
-		if err != nil {
-
-		}
-	}(app.DB, ctx)
+	defer app.DB.Disconnect()
 
 	http.HandleFunc("/", app.Router.ServeHTTP)
 

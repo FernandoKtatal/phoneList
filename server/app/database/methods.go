@@ -1,29 +1,44 @@
 package database
 
 import (
-	"context"
+	"database/sql"
 	"postapi/app/models"
 )
 
-func (d *DB) Insert(collection string, p *models.Phones) error {
-	_,err := d.GetCollection(collection).InsertOne(context.Background(), p)
+func (d *DB) Insert(p *models.Phones) error {
+	query, err := d.db.Prepare(insertPostPhones)
 	if err != nil {
 		return err
 	}
+	_, err = query.Exec(p.Country, p.State, p.CountryCode, p.PhoneNumber)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (d *DB) Select(collection string, country string, valid bool) (out *[]models.JsonPost, err error) {
-	filter := models.Phones{
-		Country:     country,
-		State:       valid,
+func (d *DB) Select(country *string, state *bool) (out []models.Phones, err error) {
+	var item models.Phones
+	var rows *sql.Rows
+	if country != nil && state != nil {
+		rows, _ = d.db.Query(string(selectPhonesWith2Filters), country, state)
+	} else if country != nil {
+		rows, _ = d.db.Query(string(selectPhonesCountryFilter), country)
+	} else if state != nil {
+		rows, _ = d.db.Query(string(selectPhonesStateFilter), state)
+	} else {
+		rows, _ = d.db.Query(string(selectPhonesWithNoFilters))
 	}
-	cur, err := d.GetCollection(collection).Find(context.Background(), filter)
-	defer cur.Close(context.Background())
-	if err != nil {
+
+	if rows == nil {
 		return nil, err
 	}
-	cur.All(context.Background(), &out)
+
+	for rows.Next() {
+		rows.Scan(&item.Country, &item.State, &item.CountryCode, &item.PhoneNumber)
+		out = append(out, item)
+	}
 
 	return out, err
 }

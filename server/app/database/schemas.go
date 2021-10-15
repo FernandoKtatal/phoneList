@@ -1,9 +1,18 @@
 package database
 
 
-var insertPostSchema = `
+var insertPostPhones = `
 INSERT INTO phones(country, state, countryCode, phoneNumber) VALUES($1,$2,$3,$4)
 `
-var selectPostedSchema = `
+var selectPhonesWithNoFilters = `
 SELECT * FROM phones
+`
+var selectPhonesWith2Filters = `
+SELECT * FROM phones WHERE country = ? AND state = ?
+`
+var selectPhonesStateFilter = `
+SELECT * FROM phones WHERE state = ?
+`
+var selectPhonesCountryFilter = `
+SELECT * FROM phones WHERE country = ?
 `

@@ -22,5 +22,5 @@ func New() *App {
 func (a *App) initRoutes() {
 	a.Router.HandleFunc("/", a.IndexHandler()).Methods("GET")
 	a.Router.HandleFunc("/api/phone", a.CreatePostHandler()).Methods("POST")
-	//a.Router.HandleFunc("/api/phone", a.GetPostsHandler()).Methods("GET")
+	a.Router.HandleFunc("/api/phone", a.GetPostsHandler()).Methods("GET")
 }

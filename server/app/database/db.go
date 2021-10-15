@@ -1,51 +1,53 @@
 package database
 
 import (
-	"context"
-	"fmt"
+	"database/sql"
 	_ "github.com/lib/pq"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	_ "github.com/mattn/go-sqlite3"
+	"os"
 	"postapi/app/models"
 )
 
 type PostDB interface {
-	Connect(ctx context.Context) error
-	Disconnect(ctx context.Context) error
-	GetCollection(name string) *mongo.Collection
-	Insert(collection string, p *models.Phones) error
-	Select(collection string, country string, valid bool) (out *[]models.JsonPost, err error)
+	Connect() error
+	Disconnect() error
+	Insert(p *models.Phones) error
+	Select(country *string, valid *bool) ([]models.Phones, error)
 }
 
 type DB struct {
-	client *mongo.Client
-	dbname string
+	db *sql.DB
 }
 
-func (d *DB) Connect(ctx context.Context) error {
-	client, err := mongo.NewClient(options.Client().ApplyURI(URI))
+func (d *DB) Connect() error {
+	db, err := sql.Open("sqlite3", "../sample.db")
 	if err != nil {
 		return err
 	}
-	fmt.Println("Conectando Mongo")
-	err = client.Connect(ctx)
+	d.db = db
+
+	files, err := os.ReadDir(MigrationPath)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("Ping")
-	err = client.Ping(ctx, nil)
-	if err != nil {
-		return err
+	for _, file := range files {
+		query, err := os.ReadFile(MigrationPath + file.Name())
+		if err != nil || query == nil {
+			return err
+		}
+
+		migration, err := db.Prepare(string(query))
+		if err != nil {
+			return err
+		}
+		migration.Exec()
 	}
-	d.dbname = Database
+
+
 	return nil
 }
 
-func (d *DB) Disconnect(ctx context.Context) error {
-	return d.client.Disconnect(ctx)
-}
-
-func (d *DB) GetCollection(name string) *mongo.Collection {
-	return d.client.Database(d.dbname).Collection(name)
+func (d *DB) Disconnect() error {
+	return d.db.Close()
 }
