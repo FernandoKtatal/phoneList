@@ -2,10 +2,11 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"postapi/app/models"
 )
 
-func (d *DB) Insert(p *models.Phones) error {
+func (d *DB) InsertPhone(p *models.Phones) error {
 	query, err := d.db.Prepare(insertPostPhones)
 	if err != nil {
 		return err
@@ -18,7 +19,7 @@ func (d *DB) Insert(p *models.Phones) error {
 	return nil
 }
 
-func (d *DB) Select(country *string, state *bool) (out []models.Phones, err error) {
+func (d *DB) SelectPhone(country *string, state *bool) (out []models.Phones, err error) {
 	var item models.Phones
 	var rows *sql.Rows
 	if country != nil && state != nil {
@@ -32,13 +33,15 @@ func (d *DB) Select(country *string, state *bool) (out []models.Phones, err erro
 	}
 
 	if rows == nil {
-		return nil, err
+		return nil, errors.New("Nenhum item encontrado")
 	}
 
 	for rows.Next() {
 		rows.Scan(&item.Country, &item.State, &item.CountryCode, &item.PhoneNumber)
 		out = append(out, item)
 	}
+
+	defer rows.Close()
 
 	return out, err
 }

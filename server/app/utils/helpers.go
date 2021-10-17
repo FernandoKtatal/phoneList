@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"postapi/app/models"
-	"regexp"
 )
 
 func Parse(r *http.Request, data *models.PostRequest) error {
@@ -43,14 +42,4 @@ func MapPostToJSON(p *models.Phones) models.JsonPost {
 		CountryCode: p.CountryCode,
 		PhoneNumber: p.PhoneNumber,
 	}
-}
-
-func validateObj(data *models.PostRequest) (bool, error) {
-	_, err :=  regexp.MatchString("[28]\\d{7,8}$", *data.PhoneNumber)
-	if err != nil {
-		return false, err
-	}
-
-	return true, err
-	//return !(data.Country != nil && data.State != nil && data.CountryCode != nil && data.PhoneNumber != nil)
 }

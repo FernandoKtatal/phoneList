@@ -16,3 +16,7 @@ SELECT * FROM phones WHERE state = ?
 var selectPhonesCountryFilter = `
 SELECT * FROM phones WHERE country = ?
 `
+
+var selectRegexByCountryCode = `
+SELECT * FROM regex WHERE countryCode = $1
+`

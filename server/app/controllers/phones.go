@@ -1,22 +1,16 @@
-package app
+package controllers
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"postapi/app/models"
+	"postapi/app/services"
 	"postapi/app/utils"
 	"strconv"
 	"strings"
 )
 
-func (a *App) IndexHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Welcome to Post API")
-	}
-}
-
-func (a *App) CreatePostHandler() http.HandlerFunc {
+func NewPhone() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := models.PostRequest{}
 		err := utils.Parse(r, &req)
@@ -26,21 +20,12 @@ func (a *App) CreatePostHandler() http.HandlerFunc {
 			return
 		}
 
-		// Create the post
-		p := &models.Phones{
-			Country:     *req.Country,
-			State:       *req.State,
-			CountryCode: *req.CountryCode,
-			PhoneNumber: *req.PhoneNumber,
-		}
 
-		// Save in DB
-		err = a.DB.Insert(p)
+		p, err := services.CreatePhone(*req.Country, *req.CountryCode, *req.PhoneNumber)
 		if err != nil {
 			if strings.Contains(err.Error(), "column") {
 				utils.SendResponse(w, r, nil, http.StatusBadRequest)
 			} else {
-				log.Printf("Cannot save post in DB. err=%v \n", err)
 				utils.SendResponse(w, r, nil, http.StatusInternalServerError)
 			}
 			return
@@ -50,9 +35,10 @@ func (a *App) CreatePostHandler() http.HandlerFunc {
 		utils.SendResponse(w, r, resp, http.StatusOK)
 
 	}
+
 }
 
-func (a *App) GetPostsHandler() http.HandlerFunc {
+func GetPhone() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var validState *bool
 		country := r.URL.Query().Get("country")
@@ -62,7 +48,7 @@ func (a *App) GetPostsHandler() http.HandlerFunc {
 			validState = &stateBool
 		}
 
-		phones, err := a.DB.Select(&country, validState)
+		phones, err := services.CapturePhone(&country, validState)
 		if err != nil {
 			log.Printf("Cannot get phones, err=%v \n", err)
 			utils.SendResponse(w, r, nil, http.StatusInternalServerError)
@@ -77,3 +63,4 @@ func (a *App) GetPostsHandler() http.HandlerFunc {
 		utils.SendResponse(w, r, resp, http.StatusOK)
 	}
 }
+

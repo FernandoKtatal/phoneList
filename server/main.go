@@ -10,11 +10,10 @@ import (
 
 func main() {
 	app := app.New()
-	app.DB = &database.DB{}
-	err := app.DB.Connect()
+	err := database.Connect()
 	check(err)
 
-	defer app.DB.Disconnect()
+	defer database.Disconnect()
 
 	http.HandleFunc("/", app.Router.ServeHTTP)
 

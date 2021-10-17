@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/gorilla/mux"
+	"postapi/app/controllers"
 	"postapi/app/database"
 )
 
@@ -14,13 +15,11 @@ func New() *App {
 	a := &App{
 		Router: mux.NewRouter(),
 	}
-
 	a.initRoutes()
 	return a
 }
 
-func (a *App) initRoutes() {
-	a.Router.HandleFunc("/", a.IndexHandler()).Methods("GET")
-	a.Router.HandleFunc("/api/phone", a.CreatePostHandler()).Methods("POST")
-	a.Router.HandleFunc("/api/phone", a.GetPostsHandler()).Methods("GET")
+func (a *App)initRoutes() {
+	a.Router.HandleFunc("/api/phone", controllers.NewPhone()).Methods("POST")
+	a.Router.HandleFunc("/api/phone", controllers.GetPhone()).Methods("GET")
 }
