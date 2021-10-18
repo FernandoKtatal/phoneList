@@ -4,6 +4,7 @@ import (
 	"postapi/app/database"
 	"postapi/app/models"
 	"regexp"
+	"strconv"
 )
 
 
@@ -14,8 +15,7 @@ func CreatePhone(country string, countryCode int64, phoneNumer int64) (*models.P
 		return nil, err
 	}
 
-	phoneByte := []byte(string(phoneNumer))
-	match, err := regexp.Match(regexCode.RegexCode, phoneByte)
+	match, err := regexp.MatchString(regexCode.RegexCode, strconv.Itoa(int(phoneNumer)))
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +35,7 @@ func CreatePhone(country string, countryCode int64, phoneNumer int64) (*models.P
 }
 
 
-func CapturePhone(country *string, state *bool) ([]models.Phones, error) {
+func CapturePhone(country string, state *bool) ([]models.Phones, error) {
 
 	out, err := database.Mgr.SelectPhone(country, state)
 	if err != nil {

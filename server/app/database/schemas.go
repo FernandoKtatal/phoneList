@@ -2,21 +2,21 @@ package database
 
 
 var insertPostPhones = `
-INSERT INTO phones(country, state, countryCode, phoneNumber) VALUES($1,$2,$3,$4)
+INSERT INTO phones(country, state, countryCode, phoneNumber) VALUES(?,?,?,?)
 `
 var selectPhonesWithNoFilters = `
-SELECT * FROM phones
+SELECT country, state, countryCode, phoneNumber FROM phones
 `
 var selectPhonesWith2Filters = `
-SELECT * FROM phones WHERE country = ? AND state = ?
+SELECT country, state, countryCode, phoneNumber FROM phones WHERE country = ? AND state = ?
 `
 var selectPhonesStateFilter = `
-SELECT * FROM phones WHERE state = ?
+SELECT country, state, countryCode, phoneNumber FROM phones WHERE state = ?
 `
 var selectPhonesCountryFilter = `
-SELECT * FROM phones WHERE country = ?
+SELECT country, state, countryCode, phoneNumber FROM phones WHERE country = ?
 `
 
 var selectRegexByCountryCode = `
-SELECT * FROM regex WHERE countryCode = $1
+SELECT countryCode, regexCode FROM regex WHERE countryCode = ?
 `

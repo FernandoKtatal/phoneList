@@ -19,12 +19,12 @@ func (d *DB) InsertPhone(p *models.Phones) error {
 	return nil
 }
 
-func (d *DB) SelectPhone(country *string, state *bool) (out []models.Phones, err error) {
+func (d *DB) SelectPhone(country string, state *bool) (out []models.Phones, err error) {
 	var item models.Phones
 	var rows *sql.Rows
-	if country != nil && state != nil {
+	if country != "" && state != nil {
 		rows, _ = d.db.Query(string(selectPhonesWith2Filters), country, state)
-	} else if country != nil {
+	} else if country != "" {
 		rows, _ = d.db.Query(string(selectPhonesCountryFilter), country)
 	} else if state != nil {
 		rows, _ = d.db.Query(string(selectPhonesStateFilter), state)

@@ -48,7 +48,7 @@ func GetPhone() http.HandlerFunc {
 			validState = &stateBool
 		}
 
-		phones, err := services.CapturePhone(&country, validState)
+		phones, err := services.CapturePhone(country, validState)
 		if err != nil {
 			log.Printf("Cannot get phones, err=%v \n", err)
 			utils.SendResponse(w, r, nil, http.StatusInternalServerError)

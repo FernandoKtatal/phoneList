@@ -38,12 +38,14 @@ func Disconnect() error {
 	return Mgr.db.Close()
 }
 
-func GetDB() DB {
-	return Mgr
+func GetDB() *sql.DB {
+	return Mgr.db
 }
 
 func execMigrations(db *sql.DB) error {
 	files, err := os.ReadDir(MigrationPath)
+	a, err := os.Getwd()
+	_ = a
 	if err != nil {
 		return err
 	}

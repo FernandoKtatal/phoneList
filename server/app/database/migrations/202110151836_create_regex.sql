@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS regex
 (
-    countryCode INT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    countryCode INT UNIQUE,
     regexCode TEXT
 )
